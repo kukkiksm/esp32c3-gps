@@ -41,11 +41,11 @@ String getGpsInfoStr()
 String formatSmartCoord(String label, double value)
 {
   String valStr = String(value, 5);
-  int totalLen = label.length() + 1 + valStr.length(); 
+  int totalLen = label.length() + 1 + valStr.length();
 
   while (totalLen > 12 && label.length() > 0)
   {
-    label.remove(label.length() - 1); 
+    label.remove(label.length() - 1);
     totalLen = label.length() + 1 + valStr.length();
   }
 
@@ -68,9 +68,9 @@ void setup()
 
   pinMode(BOOT_PIN, INPUT_PULLUP);
 
-  initLedSignal(8);      
-  setLedOnline();        
-  digitalWrite(8, HIGH); 
+  initLedSignal(8);
+  setLedOnline();
+  digitalWrite(8, HIGH);
 
   button.attachClick([]()
                      {
@@ -89,7 +89,7 @@ void setup()
   oledInit();
   oledPrint("Waiting GPS.....", "", "", "");
 
-  loadConfig(); 
+  loadConfig();
 
   if (config.receiverMacStr.length() != 17)
   {
@@ -108,9 +108,9 @@ void setup()
   else
     setLedOnline();
 
-  WiFi.mode(WIFI_STA);                             
-  esp_wifi_set_promiscuous(true);                  
-  esp_wifi_set_channel(10, WIFI_SECOND_CHAN_NONE); 
+  WiFi.mode(WIFI_STA);
+  esp_wifi_set_promiscuous(true);
+  esp_wifi_set_channel(10, WIFI_SECOND_CHAN_NONE);
   esp_wifi_set_promiscuous(false);
 
   if (esp_now_init() != ESP_OK)
@@ -136,7 +136,7 @@ void setup()
   gpsInit(GPS_RX_PIN, GPS_TX_PIN);
   Serial.println("✅ GPS + ESP-NOW Ready (Offline Mode)");
 
-  digitalWrite(8, HIGH); 
+  digitalWrite(8, HIGH);
 }
 
 #include <time.h>
@@ -146,8 +146,8 @@ bool gpsReadyToSend = false;
 
 void loop()
 {
-  button.tick();    
-  updateLedMorse(); 
+  button.tick();
+  updateLedMorse();
 
   if (millis() - lastToggle > 5000)
   {
@@ -158,7 +158,7 @@ void loop()
   if (!gpsReadyToSend && gpsRead(gpsData))
   {
     gpsReadyToSend = true;
-    lastSend = millis(); 
+    lastSend = millis();
   }
 
   if (gpsReadyToSend && millis() - lastSend > 3000)
@@ -182,7 +182,7 @@ void loop()
     esp_err_t result = esp_now_send(config.receiverMAC, (uint8_t *)&gpsData, sizeof(gpsData));
     Serial.println(result == ESP_OK ? "📡 Sent successfully." : "❌ Send failed!");
 
-    int offset = getCurrentUTCOffset(); 
+    int offset = getCurrentUTCOffset();
     struct tm t;
     t.tm_year = gpsData.year - 1900;
     t.tm_mon = gpsData.month - 1;
@@ -192,8 +192,8 @@ void loop()
     t.tm_sec = gpsData.ss;
     t.tm_isdst = 0;
 
-    time_t raw = mktime(&t); 
-    raw += offset * 1800;    
+    time_t raw = mktime(&t);
+    raw += offset * 1800;
 
     struct tm *local = localtime(&raw);
 
@@ -210,5 +210,5 @@ void loop()
     oledPrint(dateTime, latStr, lonStr, infoStr);
   }
 
-  delay(10); 
-
+  delay(10);
+}
